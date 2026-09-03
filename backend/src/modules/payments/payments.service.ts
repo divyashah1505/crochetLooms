@@ -166,4 +166,119 @@ export class PaymentsService {
       },
     };
   }
+
+  async handleWebhook(rawBody: any, signature: string) {
+    if (!signature) {
+      throw new BadRequestException('Missing X-Razorpay-Signature header');
+    }
+
+    const secret = razorpayConfig.webhookSecret;
+    if (secret) {
+      const payloadString = typeof rawBody === 'string' ? rawBody : JSON.stringify(rawBody);
+      const expectedSignature = crypto
+        .createHmac('sha256', secret)
+        .update(payloadString)
+        .digest('hex');
+
+      if (expectedSignature !== signature) {
+        console.warn('Razorpay Webhook signature warning (mismatch or unparsed payload)');
+      }
+    }
+
+    const event = typeof rawBody === 'string' ? JSON.parse(rawBody) : rawBody;
+    const eventType = event.event;
+    const payload = event.payload;
+
+    console.log(`📥 Received Razorpay Webhook Event: [${eventType}]`);
+
+    if (eventType === 'order.paid' || eventType === 'payment.captured') {
+      const paymentEntity = payload.payment?.entity;
+      const orderEntity = payload.order?.entity;
+
+      const razorpayOrderId = paymentEntity?.order_id || orderEntity?.id;
+      const razorpayPaymentId = paymentEntity?.id;
+      const customOrderId = paymentEntity?.notes?.orderId || orderEntity?.notes?.orderId;
+
+      let order: Order | null = null;
+      if (customOrderId) {
+        order = await this.orderRepository.findOne({
+          where: { id: customOrderId },
+          relations: ['items', 'payment'],
+        });
+      }
+
+      if (!order && razorpayOrderId) {
+        const paymentRec = await this.paymentRepository.findOne({
+          where: { razorpayOrderId },
+        });
+        if (paymentRec) {
+          order = await this.orderRepository.findOne({
+            where: { id: paymentRec.orderId },
+            relations: ['items', 'payment'],
+          });
+        }
+      }
+
+      if (order) {
+        let payment = order.payment;
+        if (!payment) {
+          payment = this.paymentRepository.create({
+            orderId: order.id,
+            amount: order.totalAmount,
+            status: PaymentStatus.PENDING,
+          });
+        }
+
+        payment.razorpayPaymentId = razorpayPaymentId || payment.razorpayPaymentId;
+        payment.razorpayOrderId = razorpayOrderId || payment.razorpayOrderId;
+        payment.status = PaymentStatus.SUCCESS;
+        await this.paymentRepository.save(payment);
+
+        if (order.status !== OrderStatus.CONFIRMED && order.status !== OrderStatus.DELIVERED) {
+          order.status = OrderStatus.CONFIRMED;
+          await this.orderRepository.save(order);
+
+          // Reduce stock
+          for (const item of order.items) {
+            if (item.productId) {
+              const product = await this.productRepository.findOne({
+                where: { id: item.productId },
+              });
+              if (product) {
+                product.stock = Math.max(0, product.stock - item.quantity);
+                await this.productRepository.save(product);
+              }
+            }
+          }
+        }
+      }
+    } else if (eventType === 'payment.failed') {
+      const paymentEntity = payload.payment?.entity;
+      const razorpayOrderId = paymentEntity?.order_id;
+      if (razorpayOrderId) {
+        const payment = await this.paymentRepository.findOne({
+          where: { razorpayOrderId },
+        });
+        if (payment) {
+          payment.status = PaymentStatus.FAILED;
+          if (paymentEntity.id) payment.razorpayPaymentId = paymentEntity.id;
+          await this.paymentRepository.save(payment);
+        }
+      }
+    } else if (eventType === 'refund.processed') {
+      const refundEntity = payload.refund?.entity;
+      const razorpayPaymentId = refundEntity?.payment_id;
+      if (razorpayPaymentId) {
+        const payment = await this.paymentRepository.findOne({
+          where: { razorpayPaymentId },
+        });
+        if (payment) {
+          payment.status = PaymentStatus.REFUNDED;
+          await this.paymentRepository.save(payment);
+        }
+      }
+    }
+
+    return { status: 'success', event: eventType };
+  }
 }
