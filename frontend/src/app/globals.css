@@ -1,0 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-primary: 'Plus Jakarta Sans', sans-serif;
+  --font-heading: 'Outfit', sans-serif;
+  --font-serif: 'Playfair Display', serif;
+}
+
+body {
+  font-family: var(--font-primary);
+  background-color: #FAF8F5;
+  color: #2D2420;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+.font-serif-accent {
+  font-family: var(--font-serif);
+}
+
+/* Custom Crochet Pattern Background */
+.bg-crochet-pattern {
+  background-color: #FAF8F5;
+  background-image: radial-gradient(#E8B4B8 0.75px, transparent 0.75px), radial-gradient(#CFBDA5 0.75px, #FAF8F5 0.75px);
+  background-size: 30px 30px;
+  background-position: 0 0, 15px 15px;
+}
+
+/* Smooth custom scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F5F0E8;
+}
+::-webkit-scrollbar-thumb {
+  background: #D58E7B;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #C26A54;
+}
+
+/* Glassmorphism card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(222, 209, 191, 0.5);
+}
+
+/* Animated gradient text */
+.text-artisan-gradient {
+  background: linear-gradient(135deg, #C26A54 0%, #A9513C 50%, #4A3B32 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Artisan Badge */
+.artisan-badge {
+  background: linear-gradient(135deg, #F8ECE7 0%, #F1D5CC 100%);
+  border: 1px solid #E4B4A5;
+  color: #8A3D2C;
+}
