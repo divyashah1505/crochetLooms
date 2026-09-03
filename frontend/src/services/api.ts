@@ -1,9 +1,8 @@
 import axios from 'axios';
-import type { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
-export const apiClient: AxiosInstance = axios.create({
+export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
@@ -13,11 +12,12 @@ export const apiClient: AxiosInstance = axios.create({
 
 // Automatically attach customer JWT token
 apiClient.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
+  (config: any) => {
     if (typeof window !== 'undefined') {
       try {
         const customerToken = localStorage.getItem('crochet_customer_token');
         if (customerToken) {
+          config.headers = config.headers || {};
           config.headers.Authorization = `Bearer ${customerToken}`;
         }
       } catch (err) {
@@ -26,18 +26,18 @@ apiClient.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error),
+  (error: any) => Promise.reject(error),
 );
 
 // Format and unwrap responses
 apiClient.interceptors.response.use(
-  (response: AxiosResponse) => {
+  (response: any) => {
     if (response?.data && response.data.data !== undefined) {
       return response.data;
     }
     return response;
   },
-  (error) => {
+  (error: any) => {
     const message =
       error.response?.data?.message ||
       error.response?.data?.error ||
