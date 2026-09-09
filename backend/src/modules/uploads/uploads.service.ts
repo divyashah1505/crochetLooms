@@ -24,7 +24,7 @@ export class UploadsService {
     }
   }
 
-  async uploadFile(file: Express.Multer.File): Promise<{ imageUrl: string; url: string; publicId?: string }> {
+  async uploadFile(file: any): Promise<{ imageUrl: string; url: string; publicId?: string }> {
     if (!file) {
       throw new BadRequestException('No file provided');
     }

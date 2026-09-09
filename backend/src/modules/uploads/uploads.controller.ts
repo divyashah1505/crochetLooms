@@ -18,7 +18,7 @@ export class UploadsController {
   @Post('image')
   @UseGuards(AdminJwtGuard)
   @UseInterceptors(FileInterceptor('file'))
-  async uploadSingle(@UploadedFile() file: Express.Multer.File) {
+  async uploadSingle(@UploadedFile() file: any) {
     if (!file) {
       throw new BadRequestException('Please select a file to upload');
     }
@@ -32,7 +32,7 @@ export class UploadsController {
   @Post('images')
   @UseGuards(AdminJwtGuard)
   @UseInterceptors(FilesInterceptor('files', 5))
-  async uploadMultiple(@UploadedFiles() files: Express.Multer.File[]) {
+  async uploadMultiple(@UploadedFiles() files: any[]) {
     if (!files || files.length === 0) {
       throw new BadRequestException('Please select at least one file to upload');
     }
