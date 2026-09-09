@@ -406,18 +406,14 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between">
                 <span>Shipping</span>
-                <span className="font-semibold text-yarn-mocha">
-                  {cart?.shippingFee === 0 ? (
-                    <span className="text-sage-600 font-bold uppercase">Free</span>
-                  ) : (
-                    `₹${cart?.shippingFee}`
-                  )}
+                <span className="font-semibold text-sage-600 font-bold uppercase">
+                  Free
                 </span>
               </div>
               <div className="pt-3 border-t border-cream-200 flex justify-between text-base font-extrabold text-yarn-mocha">
                 <span>Total Amount</span>
                 <span className="text-clay-700 text-2xl font-black">
-                  ₹{cart?.totalAmount.toLocaleString('en-IN')}
+                  ₹{(cart?.subtotal || cart?.totalAmount || 0).toLocaleString('en-IN')}
                 </span>
               </div>
             </div>
@@ -457,7 +453,7 @@ export default function CheckoutPage() {
               isLoading={isOrderProcessing}
               leftIcon={<CreditCard className="w-4 h-4" />}
             >
-              Pay ₹{cart?.totalAmount.toLocaleString('en-IN')} with Razorpay
+              Pay ₹{(cart?.subtotal || cart?.totalAmount || 0).toLocaleString('en-IN')} with Razorpay
             </Button>
 
             <div className="flex items-center justify-center gap-2 text-[11px] text-stone-500 text-center">

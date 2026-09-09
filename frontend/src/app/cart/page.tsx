@@ -179,17 +179,13 @@ export default function CartPage() {
               </div>
               <div className="flex justify-between">
                 <span>Shipping Fee</span>
-                <span className="font-semibold text-yarn-mocha">
-                  {shippingFee === 0 ? (
-                    <span className="text-sage-600 font-bold uppercase">Free</span>
-                  ) : (
-                    `₹${shippingFee}`
-                  )}
+                <span className="font-bold text-sage-600 uppercase">
+                  Free
                 </span>
               </div>
               <div className="pt-3 border-t border-cream-200 flex justify-between text-base font-extrabold text-yarn-mocha">
                 <span>Estimated Total</span>
-                <span className="text-clay-700 text-xl">₹{totalAmount.toLocaleString('en-IN')}</span>
+                <span className="text-clay-700 text-xl">₹{subtotal.toLocaleString('en-IN')}</span>
               </div>
             </div>
 
