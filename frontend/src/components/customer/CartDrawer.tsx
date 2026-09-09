@@ -13,9 +13,9 @@ export const CartDrawer: React.FC = () => {
 
   const items = cart?.items || [];
   const subtotal = cart?.subtotal || 0;
-  const freeShippingThreshold = 1000;
-  const progressPercent = Math.min(100, Math.round((subtotal / freeShippingThreshold) * 100));
-  const amountToFreeShipping = Math.max(0, freeShippingThreshold - subtotal);
+  const freeShippingThreshold = 0;
+  const progressPercent = 100;
+  const amountToFreeShipping = 0;
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">

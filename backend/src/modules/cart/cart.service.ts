@@ -69,8 +69,8 @@ export class CartService {
       items: formattedItems,
       totalItems,
       subtotal: Number(subtotal.toFixed(2)),
-      shippingFee: subtotal > 1000 || subtotal <= 50 || totalItems === 0 ? 0 : 50,
-      totalAmount: Number((subtotal + (subtotal > 1000 || subtotal <= 50 || totalItems === 0 ? 0 : 50)).toFixed(2)),
+      shippingFee: 0,
+      totalAmount: Number(subtotal.toFixed(2)),
     };
   }
 
