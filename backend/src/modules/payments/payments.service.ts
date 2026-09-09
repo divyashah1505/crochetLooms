@@ -53,7 +53,20 @@ export class PaymentsService {
       throw new BadRequestException('Order is already processed or confirmed');
     }
 
-    const amountInPaise = Math.round(Number(order.totalAmount) * 100);
+    // Strictly charge product items price only (ZERO extra shipping or charges)
+    let productSubtotal = 0;
+    if (order.items && order.items.length > 0) {
+      productSubtotal = order.items.reduce(
+        (sum, item) => sum + Number(item.price) * item.quantity,
+        0,
+      );
+    }
+
+    const finalAmount = productSubtotal > 0 ? productSubtotal : Number(order.totalAmount);
+    order.totalAmount = finalAmount;
+    await this.orderRepository.save(order);
+
+    const amountInPaise = Math.round(Number(finalAmount) * 100);
     let razorpayOrderId = `rzp_order_${Date.now()}_${Math.floor(1000 + Math.random() * 9000)}`;
 
     try {
