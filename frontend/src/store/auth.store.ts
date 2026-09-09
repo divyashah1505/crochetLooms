@@ -24,13 +24,36 @@ interface AuthState {
   logoutAdmin: () => void;
 }
 
+const getInitialCustomer = (): Customer | null => {
+  if (typeof window !== 'undefined') {
+    try {
+      const data = localStorage.getItem('crochet_customer_data');
+      return data ? JSON.parse(data) : null;
+    } catch {
+      return null;
+    }
+  }
+  return null;
+};
+
+const getInitialCustomerToken = (): string | null => {
+  if (typeof window !== 'undefined') {
+    try {
+      return localStorage.getItem('crochet_customer_token');
+    } catch {
+      return null;
+    }
+  }
+  return null;
+};
+
 export const useAuthStore = create<AuthState>((set, get) => ({
-  customer: null,
+  customer: getInitialCustomer(),
   admin: null,
-  customerToken: null,
+  customerToken: getInitialCustomerToken(),
   adminToken: null,
   isLoading: false,
-  isInitialized: false,
+  isInitialized: typeof window !== 'undefined' && !!getInitialCustomerToken(),
 
   // Auth Modal Initial State
   isAuthModalOpen: false,

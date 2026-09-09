@@ -22,7 +22,7 @@ declare global {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { customer, customerToken } = useAuthStore();
+  const { customer, customerToken, isInitialized, initAuth } = useAuthStore();
   const { cart, fetchCart, clearCart } = useCartStore();
 
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -44,7 +44,12 @@ export default function CheckoutPage() {
   const [newPostalCode, setNewPostalCode] = useState('');
 
   useEffect(() => {
-    if (!customerToken) {
+    const token = customerToken || (typeof window !== 'undefined' ? localStorage.getItem('crochet_customer_token') : null);
+    if (!token) {
+      if (!isInitialized) {
+        initAuth();
+        return;
+      }
       router.push('/login?redirect=/checkout');
       return;
     }
@@ -60,7 +65,7 @@ export default function CheckoutPage() {
       script.async = true;
       document.body.appendChild(script);
     }
-  }, [customerToken, fetchCart, router]);
+  }, [customerToken, isInitialized, initAuth, fetchCart, router]);
 
   const loadAddresses = async () => {
     try {
@@ -191,6 +196,7 @@ export default function CheckoutPage() {
           modal: {
             ondismiss: function () {
               setIsOrderProcessing(false);
+              fetchCart();
             },
           },
         };

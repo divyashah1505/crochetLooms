@@ -11,7 +11,7 @@ import { User, MapPin, Plus, Trash2, CheckCircle, ShieldCheck } from 'lucide-rea
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { customer, customerToken, logoutCustomer } = useAuthStore();
+  const { customer, customerToken, isInitialized, initAuth, logoutCustomer } = useAuthStore();
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -26,12 +26,17 @@ export default function ProfilePage() {
   const [postalCode, setPostalCode] = useState('');
 
   useEffect(() => {
-    if (!customerToken) {
+    const token = customerToken || (typeof window !== 'undefined' ? localStorage.getItem('crochet_customer_token') : null);
+    if (!token) {
+      if (!isInitialized) {
+        initAuth();
+        return;
+      }
       router.push('/login?redirect=/profile');
       return;
     }
     loadAddresses();
-  }, [customerToken, router]);
+  }, [customerToken, isInitialized, initAuth, router]);
 
   const loadAddresses = async () => {
     try {

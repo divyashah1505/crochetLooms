@@ -12,12 +12,17 @@ import { Package, Clock, CheckCircle2, Truck, Sparkles, MapPin } from 'lucide-re
 
 export default function OrdersPage() {
   const router = useRouter();
-  const { customerToken } = useAuthStore();
+  const { customerToken, isInitialized, initAuth } = useAuthStore();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!customerToken) {
+    const token = customerToken || (typeof window !== 'undefined' ? localStorage.getItem('crochet_customer_token') : null);
+    if (!token) {
+      if (!isInitialized) {
+        initAuth();
+        return;
+      }
       router.push('/login?redirect=/orders');
       return;
     }
@@ -27,7 +32,7 @@ export default function OrdersPage() {
       .then((data) => setOrders(data || []))
       .catch((err) => console.error('Failed to fetch orders:', err))
       .finally(() => setIsLoading(false));
-  }, [customerToken, router]);
+  }, [customerToken, isInitialized, initAuth, router]);
 
   const getStatusBadge = (status: OrderStatus) => {
     switch (status) {

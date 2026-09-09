@@ -13,12 +13,19 @@ function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get('redirect') || '/';
-
-  const { setCustomerAuth } = useAuthStore();
+  const { setCustomerAuth, customerToken } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // If already logged in, immediately redirect to target page
+  React.useEffect(() => {
+    const token = customerToken || (typeof window !== 'undefined' ? localStorage.getItem('crochet_customer_token') : null);
+    if (token) {
+      router.replace(redirectUrl);
+    }
+  }, [customerToken, redirectUrl, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

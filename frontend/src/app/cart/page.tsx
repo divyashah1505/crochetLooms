@@ -10,20 +10,34 @@ import { Trash2, Plus, Minus, ArrowRight, Sparkles, ShoppingBag } from 'lucide-r
 
 export default function CartPage() {
   const { cart, fetchCart, updateQuantity, removeItem, clearCart, isLoading } = useCartStore();
-  const { customerToken } = useAuthStore();
+  const { customerToken, isInitialized, initAuth } = useAuthStore();
+
+  const token = customerToken || (typeof window !== 'undefined' ? localStorage.getItem('crochet_customer_token') : null);
 
   useEffect(() => {
-    if (customerToken) {
+    if (!isInitialized) {
+      initAuth();
+      return;
+    }
+    if (token) {
       fetchCart();
     }
-  }, [customerToken, fetchCart]);
+  }, [token, isInitialized, initAuth, fetchCart]);
 
   const items = cart?.items || [];
   const subtotal = cart?.subtotal || 0;
   const shippingFee = cart?.shippingFee ?? (subtotal > 1000 ? 0 : 50);
   const totalAmount = cart?.totalAmount ?? (subtotal + shippingFee);
 
-  if (!customerToken) {
+  if (!isInitialized && !token) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center text-xs text-stone-500">
+        Loading cart...
+      </div>
+    );
+  }
+
+  if (!token) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <EmptyState
