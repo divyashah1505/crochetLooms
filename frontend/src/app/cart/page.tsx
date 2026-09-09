@@ -26,7 +26,7 @@ export default function CartPage() {
 
   const items = cart?.items || [];
   const subtotal = cart?.subtotal || 0;
-  const shippingFee = cart?.shippingFee ?? (subtotal > 1000 ? 0 : 50);
+  const shippingFee = cart?.shippingFee ?? (subtotal > 1000 || subtotal <= 50 ? 0 : 50);
   const totalAmount = cart?.totalAmount ?? (subtotal + shippingFee);
 
   if (!isInitialized && !token) {

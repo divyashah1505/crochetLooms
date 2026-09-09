@@ -76,7 +76,7 @@ export class OrdersService {
       subtotal += Number(product.price) * item.quantity;
     }
 
-    const shippingFee = subtotal > 1000 ? 0 : 50;
+    const shippingFee = subtotal > 1000 || subtotal <= 50 ? 0 : 50;
     const totalAmount = Number((subtotal + shippingFee).toFixed(2));
 
     // 4. Create Order
