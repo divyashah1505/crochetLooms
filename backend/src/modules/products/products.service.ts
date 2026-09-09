@@ -57,7 +57,7 @@ export class ProductsService {
 
     if (query.category) {
       qb.andWhere(
-        '(category.id = :category OR category.slug = :category OR category.parentId = (SELECT c_sub.id FROM categories c_sub WHERE c_sub.id = :category OR c_sub.slug = :category LIMIT 1))',
+        '(CAST(category.id AS text) = :category OR category.slug = :category OR CAST(category.parentId AS text) = (SELECT CAST(c_sub.id AS text) FROM categories c_sub WHERE CAST(c_sub.id AS text) = :category OR c_sub.slug = :category LIMIT 1))',
         { category: query.category },
       );
     }
@@ -236,9 +236,10 @@ export class ProductsService {
     product.weight = dto.weight !== undefined ? dto.weight : product.weight;
     product.sku = dto.sku !== undefined ? dto.sku : product.sku;
 
-    // Remove old relation cache so TypeORM doesn't overwrite new categoryId
+    // Remove old relation cache so TypeORM doesn't overwrite new categoryId or cascade stale images
     delete (product as any).category;
     delete (product as any).createdByAdmin;
+    delete (product as any).images;
 
     await this.productRepository.save(product);
     return this.findOne(id);

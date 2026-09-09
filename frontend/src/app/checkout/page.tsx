@@ -416,6 +416,31 @@ export default function CheckoutPage() {
               </div>
             </div>
 
+            {/* Razorpay Test Mode Helper Card */}
+            <div className="p-4 bg-amber-50/80 border border-amber-200 rounded-2xl text-xs space-y-2.5">
+              <div className="flex items-center justify-between text-amber-900 font-bold">
+                <span className="flex items-center gap-1.5">
+                  🧪 Razorpay Test Mode Credentials
+                </span>
+                <span className="text-[10px] px-2 py-0.5 bg-amber-200/80 text-amber-900 rounded-md font-semibold">
+                  Sandbox
+                </span>
+              </div>
+              <div className="space-y-1.5 text-stone-600 text-[11px]">
+                <div className="flex items-center justify-between bg-white p-2 rounded-lg border border-amber-100 font-mono">
+                  <span>Card: <strong>4111 1111 1111 1111</strong> (16 digits)</span>
+                  <span className="text-stone-400">Exp: 12/28 | CVV: 123</span>
+                </div>
+                <div className="flex items-center justify-between bg-white p-2 rounded-lg border border-amber-100 font-mono">
+                  <span>UPI ID: <strong>success@razorpay</strong></span>
+                  <span className="text-sage-700 font-semibold text-[10px]">Instant Success</span>
+                </div>
+                <p className="text-[11px] text-amber-800 leading-relaxed pt-0.5">
+                  ⚠️ <strong>Important for Bank Page:</strong> On the mock bank screen, enter OTP <strong>123456</strong> or click <strong>&ldquo;Success&rdquo;</strong>. If you enter fewer than 4 digits or click Failure, Razorpay will show <em>&ldquo;Retry / Payment Not Successful&rdquo;</em>.
+                </p>
+              </div>
+            </div>
+
             {/* Payment Button */}
             <Button
               size="lg"

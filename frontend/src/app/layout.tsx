@@ -4,6 +4,7 @@ import { Navbar } from '../components/common/Navbar';
 import { Footer } from '../components/common/Footer';
 import { CartDrawer } from '../components/customer/CartDrawer';
 import { AuthModal } from '../components/customer/AuthModal';
+import { ChatWidget } from '../components/customer/ChatWidget';
 
 export const metadata: Metadata = {
   title: 'CrochetLoom | Handcrafted Artisanal Crochet & Knitwear',
@@ -24,6 +25,7 @@ export default function RootLayout({
         <Footer />
         <CartDrawer />
         <AuthModal />
+        <ChatWidget />
       </body>
     </html>
   );

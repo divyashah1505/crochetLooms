@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Sparkles, ArrowRight, Heart, ShieldCheck, Truck, Star, Award } from 'lucide-react';
+import { Sparkles, ArrowRight, Heart, ShieldCheck, Truck, Star, Award, MessageCircle } from 'lucide-react';
+import { useChatStore } from '../store/chat.store';
 import { TagNav } from '../components/common/TagNav';
 import { ProductGrid } from '../components/customer/ProductGrid';
 import { Button } from '../components/common/Button';
@@ -10,8 +11,8 @@ import { productService } from '../services/product.service';
 import { categoryService } from '../services/category.service';
 import { Product } from '../types/product';
 import { Category } from '../types/category';
-
 export default function HomePage() {
+  const { openChat } = useChatStore();
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -68,6 +69,14 @@ export default function HomePage() {
                     🌸 Floral Bouquets
                   </Button>
                 </Link>
+                <button
+                  type="button"
+                  onClick={openChat}
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white hover:bg-cream-100 text-yarn-mocha border border-cream-300 font-semibold text-sm transition-all shadow-cozy hover:scale-105 active:scale-95"
+                >
+                  <MessageCircle className="w-4 h-4 text-clay-600" />
+                  <span>Ask AI Assistant</span>
+                </button>
               </div>
 
               {/* Trust Indicators */}
@@ -241,6 +250,38 @@ export default function HomePage() {
                 </Button>
               </Link>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. In-Page AI Chat Assistant Feature Section */}
+      <section className="py-12 bg-gradient-to-r from-clay-50 via-cream-100 to-clay-100 border-t border-b border-cream-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white/80 backdrop-blur-md rounded-3xl p-8 sm:p-10 border border-clay-200/80 shadow-cozy flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-5">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-clay-500 to-yarn-dustyPink text-white flex items-center justify-center text-3xl shadow-lg shrink-0">
+                🧶
+              </div>
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-clay-100 text-clay-700 text-[11px] font-bold">
+                  <Sparkles className="w-3 h-3 text-clay-600" />
+                  <span>Artisanal AI Shopping Assistant</span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-extrabold text-yarn-mocha">
+                  Have questions about custom crochet creations?
+                </h3>
+                <p className="text-sm text-stone-600 max-w-xl">
+                  Chat with our smart assistant right here on this page without opening any new tabs. Ask about materials, bespoke orders, gift suggestions, and order statuses.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={openChat}
+              className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-clay-600 hover:bg-clay-700 text-white font-bold text-sm shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all shrink-0"
+            >
+              <MessageCircle className="w-5 h-5" />
+              <span>Open Chatbot Popup</span>
+            </button>
           </div>
         </div>
       </section>

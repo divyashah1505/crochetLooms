@@ -16,9 +16,11 @@ import {
   ShieldCheck,
   ChevronDown,
   ExternalLink,
+  MessageCircle,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/auth.store';
 import { useCartStore } from '../../store/cart.store';
+import { useChatStore } from '../../store/chat.store';
 import { categoryService } from '../../services/category.service';
 import { Category } from '../../types/category';
 
@@ -26,6 +28,7 @@ export const Navbar: React.FC = () => {
   const router = useRouter();
   const { customer, customerToken, logoutCustomer, initAuth, openAuthModal } = useAuthStore();
   const { cart, toggleDrawer, fetchCart } = useCartStore();
+  const { openChat } = useChatStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -254,6 +257,16 @@ export const Navbar: React.FC = () => {
                 </div>
               )}
 
+              {/* Chatbot Trigger Option */}
+              <button
+                onClick={openChat}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-clay-100/80 hover:bg-clay-200 text-clay-800 text-xs font-semibold transition-all shadow-xs"
+                title="Chat with our AI Crochet Assistant"
+              >
+                <MessageCircle className="w-4 h-4 text-clay-600" />
+                <span className="hidden sm:inline">Ask AI</span>
+              </button>
+
               {/* Cart Drawer Trigger */}
               <button
                 onClick={toggleDrawer}
@@ -360,6 +373,16 @@ export const Navbar: React.FC = () => {
                 </button>
               </div>
             )}
+            <button
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                openChat();
+              }}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs font-bold bg-clay-100 text-clay-800 hover:bg-clay-200 transition-colors"
+            >
+              <MessageCircle className="w-4 h-4 text-clay-600" />
+              <span>🧶 Chat with Crochet Assistant</span>
+            </button>
             <a
               href="http://localhost:3001"
               target="_blank"
