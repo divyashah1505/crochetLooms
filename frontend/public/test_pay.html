@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Razorpay Test Transaction</title>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body style="font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: #fdfbf7;">
+  <div style="background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); text-align: center; max-width: 400px;">
+    <h2>Complete Razorpay Test Payment</h2>
+    <p style="color: #666; font-size: 14px;">Order: <strong id="orderIdText">order_TZrdbaohyiBWXh</strong></p>
+    <p style="color: #666; font-size: 14px;">Amount: <strong>₹100</strong></p>
+    <button id="payBtn" style="background: #C26A54; color: white; border: none; padding: 14px 28px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px;">
+      Open Razorpay Modal & Pay
+    </button>
+    <div id="status" style="margin-top: 20px; font-size: 14px; font-weight: bold; color: #2e7d32;"></div>
+  </div>
+
+  <script>
+    const KEY_ID = 'rzp_test_TZrISB1IJ9i7Hg';
+    const ORDER_ID = 'order_TZrdbaohyiBWXh';
+
+    document.getElementById('payBtn').onclick = function() {
+      const options = {
+        key: KEY_ID,
+        amount: 10000,
+        currency: 'INR',
+        name: 'CrochetLooms Verification',
+        description: 'Test payment for Razorpay onboarding',
+        order_id: ORDER_ID,
+        prefill: {
+          name: 'Divya Shah',
+          email: 'divya.1505shah@gmail.com',
+          contact: '9429359601'
+        },
+        theme: {
+          color: '#C26A54'
+        },
+        handler: function(response) {
+          document.getElementById('status').innerText = 'PAYMENT SUCCESSFUL! Payment ID: ' + response.razorpay_payment_id;
+          console.log('SUCCESS_PAYMENT_ID:', response.razorpay_payment_id);
+        },
+        modal: {
+          ondismiss: function() {
+            console.log('Modal dismissed');
+          }
+        }
+      };
+      const rzp = new Razorpay(options);
+      rzp.open();
+    };
+
+    // Auto open on load
+    window.onload = function() {
+      setTimeout(() => {
+        document.getElementById('payBtn').click();
+      }, 500);
+    };
+  </script>
+</body>
+</html>

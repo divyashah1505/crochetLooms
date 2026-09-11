@@ -2,12 +2,14 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { X, Plus, Minus, Trash2, ShoppingBag, ArrowRight, Sparkles } from 'lucide-react';
+import { X, Plus, Minus, Trash2, ShoppingBag, ArrowRight, Sparkles, Lock } from 'lucide-react';
 import { useCartStore } from '../../store/cart.store';
+import { useAuthStore } from '../../store/auth.store';
 import { Button } from '../common/Button';
 
 export const CartDrawer: React.FC = () => {
   const { cart, isDrawerOpen, closeDrawer, updateQuantity, removeItem, isLoading } = useCartStore();
+  const { customerToken, openAuthModal } = useAuthStore();
 
   if (!isDrawerOpen) return null;
 
@@ -33,7 +35,7 @@ export const CartDrawer: React.FC = () => {
             <div className="flex items-center gap-2">
               <ShoppingBag className="w-5 h-5 text-clay-600" />
               <h2 className="text-lg font-bold text-yarn-mocha">
-                Shopping Cart ({cart?.totalItems || 0})
+                Shopping Cart ({customerToken ? (cart?.totalItems || 0) : 0})
               </h2>
             </div>
             <button
@@ -45,27 +47,48 @@ export const CartDrawer: React.FC = () => {
           </div>
 
           {/* Free Shipping Progress */}
-          <div className="px-6 py-3 bg-cream-100/70 border-b border-cream-200 text-xs">
-            {amountToFreeShipping > 0 ? (
-              <p className="text-stone-700 mb-1.5 font-medium">
-                Add <span className="font-bold text-clay-700">₹{amountToFreeShipping}</span> more to unlock <span className="text-sage-600 font-bold">FREE Shipping!</span>
-              </p>
-            ) : (
-              <p className="text-sage-600 font-bold flex items-center gap-1 mb-1.5">
-                <Sparkles className="w-3.5 h-3.5" /> Congratulations! You unlocked Free Shipping!
-              </p>
-            )}
-            <div className="w-full h-2 bg-cream-300 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-clay-500 to-sage-500 rounded-full transition-all duration-300"
-                style={{ width: `${progressPercent}%` }}
-              />
+          {customerToken && items.length > 0 && (
+            <div className="px-6 py-3 bg-cream-100/70 border-b border-cream-200 text-xs">
+              {amountToFreeShipping > 0 ? (
+                <p className="text-stone-700 mb-1.5 font-medium">
+                  Add <span className="font-bold text-clay-700">₹{amountToFreeShipping}</span> more to unlock <span className="text-sage-600 font-bold">FREE Shipping!</span>
+                </p>
+              ) : (
+                <p className="text-sage-600 font-bold flex items-center gap-1 mb-1.5">
+                  <Sparkles className="w-3.5 h-3.5" /> Congratulations! You unlocked Free Shipping!
+                </p>
+              )}
+              <div className="w-full h-2 bg-cream-300 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-clay-500 to-sage-500 rounded-full transition-all duration-300"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Cart Item List */}
           <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-            {items.length === 0 ? (
+            {!customerToken ? (
+              <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
+                <div className="w-14 h-14 rounded-2xl bg-cream-200 text-clay-700 flex items-center justify-center text-2xl mx-auto shadow-xs">
+                  <Lock className="w-6 h-6" />
+                </div>
+                <h3 className="text-base font-bold text-yarn-mocha">Sign In Required</h3>
+                <p className="text-xs text-stone-500 max-w-xs">
+                  Please sign in or create an account to view and manage your shopping cart items.
+                </p>
+                <button
+                  onClick={() => {
+                    closeDrawer();
+                    openAuthModal('login', 'Please sign in or create an account to view your cart.');
+                  }}
+                  className="mt-2 px-5 py-2.5 rounded-full bg-clay-600 hover:bg-clay-700 text-white text-xs font-bold shadow-xs active:scale-95 transition-all"
+                >
+                  Sign In / Sign Up
+                </button>
+              </div>
+            ) : items.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
                 <div className="text-5xl">🧶</div>
                 <h3 className="text-base font-bold text-yarn-mocha">Your cart is empty</h3>

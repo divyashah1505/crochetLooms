@@ -42,9 +42,9 @@ export default function CartPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <EmptyState
           icon="🔒"
-          title="Please Sign In"
-          description="Log in or continue with Google to access your artisan crochet shopping cart."
-          actionText="Sign In with Google / Email"
+          title="Sign In / Sign Up Required"
+          description="Please sign in or create an account to access your artisan crochet shopping cart."
+          actionText="Sign In / Sign Up"
           actionHref="/login?redirect=/cart"
         />
       </div>

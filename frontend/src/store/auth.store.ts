@@ -13,7 +13,8 @@ interface AuthState {
   // Auth Modal Popup State
   isAuthModalOpen: boolean;
   authModalMode: 'login' | 'register';
-  openAuthModal: (mode?: 'login' | 'register') => void;
+  authModalNotice: string | null;
+  openAuthModal: (mode?: 'login' | 'register', notice?: string) => void;
   closeAuthModal: () => void;
   setAuthModalMode: (mode: 'login' | 'register') => void;
 
@@ -58,8 +59,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   // Auth Modal Initial State
   isAuthModalOpen: false,
   authModalMode: 'login',
-  openAuthModal: (mode = 'login') => set({ isAuthModalOpen: true, authModalMode: mode }),
-  closeAuthModal: () => set({ isAuthModalOpen: false }),
+  authModalNotice: null,
+  openAuthModal: (mode = 'login', notice?: string) =>
+    set({ isAuthModalOpen: true, authModalMode: mode, authModalNotice: notice || null }),
+  closeAuthModal: () => set({ isAuthModalOpen: false, authModalNotice: null }),
   setAuthModalMode: (mode) => set({ authModalMode: mode }),
 
   initAuth: async () => {
@@ -93,7 +96,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   setCustomerAuth: (customer, token) => {
     localStorage.setItem('crochet_customer_token', token);
     localStorage.setItem('crochet_customer_data', JSON.stringify(customer));
-    set({ customer, customerToken: token, isAuthModalOpen: false });
+    set({ customer, customerToken: token, isAuthModalOpen: false, authModalNotice: null });
+
+    // Execute pending cart item addition if any
+    import('./cart.store')
+      .then(({ useCartStore }) => {
+        useCartStore.getState().addPendingItemIfAny();
+      })
+      .catch(() => {});
   },
 
   setAdminAuth: (admin, token) => {

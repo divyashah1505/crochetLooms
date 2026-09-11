@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { productService } from '../../../services/product.service';
 import { useCartStore } from '../../../store/cart.store';
+import { useAuthStore } from '../../../store/auth.store';
 import { Product } from '../../../types/product';
 import { Button } from '../../../components/common/Button';
 import { Loader } from '../../../components/common/Loader';
@@ -32,6 +33,7 @@ export default function ProductDetailPage() {
   const idOrSlug = params.id as string;
 
   const { addItem, isLoading: isCartLoading } = useCartStore();
+  const { customerToken, openAuthModal } = useAuthStore();
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -74,13 +76,22 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = async () => {
     if (!product || product.stock <= 0) return;
+
+    if (!customerToken) {
+      useCartStore.setState({ pendingItem: { productId: product.id, quantity } });
+      openAuthModal('login', 'Please sign in or create an account to add items to your cart.');
+      return;
+    }
+
     setIsAdding(true);
     try {
       await addItem(product.id, quantity);
       setAddedSuccess(true);
       setTimeout(() => setAddedSuccess(false), 2500);
-    } catch (err) {
-      console.error('Failed to add to cart:', err);
+    } catch (err: any) {
+      if (err?.message !== 'AUTH_REQUIRED') {
+        console.error('Failed to add to cart:', err);
+      }
     } finally {
       setIsAdding(false);
     }
@@ -88,11 +99,20 @@ export default function ProductDetailPage() {
 
   const handleBuyNow = async () => {
     if (!product || product.stock <= 0) return;
+
+    if (!customerToken) {
+      useCartStore.setState({ pendingItem: { productId: product.id, quantity } });
+      openAuthModal('login', 'Please sign in or create an account to proceed to checkout.');
+      return;
+    }
+
     try {
       await addItem(product.id, quantity);
       router.push('/checkout');
-    } catch (err) {
-      console.error('Failed to proceed with Buy Now:', err);
+    } catch (err: any) {
+      if (err?.message !== 'AUTH_REQUIRED') {
+        console.error('Failed to proceed with Buy Now:', err);
+      }
     }
   };
 

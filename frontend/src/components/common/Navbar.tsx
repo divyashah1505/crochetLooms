@@ -240,21 +240,14 @@ export const Navbar: React.FC = () => {
                   )}
                 </div>
               ) : (
-                <div className="flex items-center gap-1.5">
-                  <button
-                    onClick={() => openAuthModal('login')}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-clay-700 hover:text-clay-900 bg-cream-200/70 hover:bg-cream-200 rounded-full transition-all"
-                  >
-                    <User className="w-3.5 h-3.5" />
-                    Sign In
-                  </button>
-                  <button
-                    onClick={() => openAuthModal('register')}
-                    className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-clay-600 hover:bg-clay-700 rounded-full transition-all shadow-xs"
-                  >
-                    Sign Up
-                  </button>
-                </div>
+                <button
+                  onClick={() => openAuthModal('login')}
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-white bg-clay-600 hover:bg-clay-700 active:scale-95 rounded-full transition-all shadow-xs"
+                  title="Sign In or Sign Up"
+                >
+                  <User className="w-3.5 h-3.5" />
+                  <span>Sign In / Sign Up</span>
+                </button>
               )}
 
               {/* Chatbot Trigger Option */}
@@ -352,24 +345,16 @@ export const Navbar: React.FC = () => {
             </div>
 
             {!customer && (
-              <div className="pt-3 border-t border-cream-200 flex gap-2">
+              <div className="pt-3 border-t border-cream-200">
                 <button
                   onClick={() => {
                     setIsMobileMenuOpen(false);
                     openAuthModal('login');
                   }}
-                  className="flex-1 py-2 rounded-xl bg-cream-200 text-xs font-bold text-yarn-mocha text-center"
+                  className="w-full py-2.5 rounded-xl bg-clay-600 text-xs font-bold text-white text-center flex items-center justify-center gap-2 shadow-xs active:scale-[0.98] transition-transform"
                 >
-                  Sign In
-                </button>
-                <button
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    openAuthModal('register');
-                  }}
-                  className="flex-1 py-2 rounded-xl bg-clay-600 text-xs font-bold text-white text-center"
-                >
-                  Sign Up
+                  <User className="w-4 h-4" />
+                  <span>Sign In / Sign Up</span>
                 </button>
               </div>
             )}

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Product } from '../../types/product';
 import { useCartStore } from '../../store/cart.store';
+import { useAuthStore } from '../../store/auth.store';
 import { ShoppingBag, Eye, Heart, Sparkles, Check } from 'lucide-react';
 import { Badge } from '../common/Badge';
 
@@ -13,6 +14,7 @@ interface ProductCardProps {
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addItem, isLoading } = useCartStore();
+  const { customerToken, openAuthModal } = useAuthStore();
   const [isAdding, setIsAdding] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
 
@@ -33,13 +35,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
     if (product.stock <= 0) return;
 
+    if (!customerToken) {
+      useCartStore.setState({ pendingItem: { productId: product.id, quantity: 1 } });
+      openAuthModal('login', 'Please sign in or create an account to add items to your cart.');
+      return;
+    }
+
     try {
       setIsAdding(true);
       await addItem(product.id, 1);
       setJustAdded(true);
       setTimeout(() => setJustAdded(false), 2000);
-    } catch (err) {
-      console.error('Failed to add to cart:', err);
+    } catch (err: any) {
+      if (err?.message !== 'AUTH_REQUIRED') {
+        console.error('Failed to add to cart:', err);
+      }
     } finally {
       setIsAdding(false);
     }

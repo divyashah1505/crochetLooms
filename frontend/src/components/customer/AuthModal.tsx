@@ -8,8 +8,14 @@ import { GoogleSignInButton } from './GoogleSignInButton';
 import { X, Mail, Lock, User, Phone, Sparkles, HeartHandshake } from 'lucide-react';
 
 export const AuthModal: React.FC = () => {
-  const { isAuthModalOpen, authModalMode, closeAuthModal, setAuthModalMode, setCustomerAuth } =
-    useAuthStore();
+  const {
+    isAuthModalOpen,
+    authModalMode,
+    authModalNotice,
+    closeAuthModal,
+    setAuthModalMode,
+    setCustomerAuth,
+  } = useAuthStore();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -94,6 +100,17 @@ export const AuthModal: React.FC = () => {
               : 'Create an account for faster checkout and order tracking.'}
           </p>
         </div>
+
+        {/* Compulsory Notice Banner */}
+        {authModalNotice && (
+          <div className="mb-5 p-3.5 bg-amber-50 border border-amber-200 text-amber-900 text-xs rounded-2xl flex items-start gap-2.5 font-medium shadow-xs animate-in fade-in">
+            <span className="text-base flex-shrink-0">🔒</span>
+            <div className="flex-1">
+              <p className="font-bold text-yarn-mocha">Sign In / Sign Up Required</p>
+              <p className="text-stone-600 mt-0.5">{authModalNotice}</p>
+            </div>
+          </div>
+        )}
 
         {/* Tab Switcher (Sign In vs Sign Up) */}
         <div className="grid grid-cols-2 p-1 bg-cream-100 rounded-2xl mb-6">
