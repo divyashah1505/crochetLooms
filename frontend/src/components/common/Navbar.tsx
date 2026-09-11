@@ -87,8 +87,12 @@ export const Navbar: React.FC = () => {
 
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-clay-500 to-yarn-dustyPink flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
-                <span className="text-2xl">🧶</span>
+              <div className="w-11 h-11 rounded-2xl overflow-hidden shadow-xs group-hover:scale-105 group-hover:shadow-md transition-all duration-300 bg-white border border-cream-200 p-0.5">
+                <img
+                  src="/logo-mark.png"
+                  alt="CrochetLoom Artisanal Logo"
+                  className="w-full h-full object-cover rounded-[14px]"
+                />
               </div>
               <div className="flex flex-col">
                 <span className="font-serif-accent text-2xl font-bold tracking-tight text-yarn-mocha leading-tight">

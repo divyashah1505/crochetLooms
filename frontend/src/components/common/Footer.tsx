@@ -41,8 +41,12 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 py-12">
           {/* Brand Info */}
           <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">🧶</span>
+            <div className="flex items-center gap-2.5">
+              <img
+                src="/logo-mark.png"
+                alt="CrochetLoom Logo"
+                className="w-8 h-8 rounded-xl object-cover shadow-xs border border-cream-200"
+              />
               <span className="font-serif-accent text-xl font-bold text-yarn-mocha">
                 Crochet<span className="text-clay-600">Loom</span>
               </span>

@@ -40,8 +40,8 @@ export const AdminSidebar: React.FC = () => {
       <div className="space-y-6">
         {/* Brand Header */}
         <div className="flex items-center gap-3 px-3 py-2 border-b border-stone-800 pb-4">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-clay-500 to-yarn-dustyPink flex items-center justify-center text-xl shadow-md">
-            🧶
+          <div className="w-10 h-10 rounded-2xl overflow-hidden shadow-md bg-white border border-stone-700 p-0.5">
+            <img src="/logo-mark.png" alt="CrochetLoom Logo" className="w-full h-full object-cover rounded-[14px]" />
           </div>
           <div>
             <h2 className="font-bold text-white text-base tracking-tight leading-tight">

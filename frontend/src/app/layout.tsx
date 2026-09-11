@@ -10,6 +10,11 @@ export const metadata: Metadata = {
   title: 'CrochetLoom | Handcrafted Artisanal Crochet & Knitwear',
   description:
     'Discover heirloom quality handcrafted crochet bouquets, flower clutches, daisy tote bags, cozy cardigans, and adorable amigurumi plushies made with organic cotton.',
+  icons: {
+    icon: '/icon.png',
+    shortcut: '/favicon.ico',
+    apple: '/apple-icon.png',
+  },
 };
 
 export default function RootLayout({

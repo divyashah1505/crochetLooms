@@ -88,8 +88,8 @@ export const AuthModal: React.FC = () => {
 
         {/* Brand Icon & Heading */}
         <div className="text-center space-y-2 mb-6">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-clay-500 to-yarn-dustyPink text-white flex items-center justify-center text-2xl mx-auto shadow-md">
-            🧶
+          <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-md mx-auto border border-cream-200 bg-white p-0.5">
+            <img src="/logo-mark.png" alt="CrochetLoom Logo" className="w-full h-full object-cover rounded-[14px]" />
           </div>
           <h2 className="text-2xl font-black text-yarn-mocha tracking-tight">
             {authModalMode === 'login' ? 'Welcome Back!' : 'Join CrochetLoom'}
