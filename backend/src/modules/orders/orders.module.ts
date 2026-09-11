@@ -7,6 +7,7 @@ import { CartItem } from '../cart/entities/cart-item.entity';
 import { Product } from '../products/entities/product.entity';
 import { Address } from '../addresses/entities/address.entity';
 import { Payment } from '../payments/entities/payment.entity';
+import { Customer } from '../customers/entities/customer.entity';
 import { OrdersService } from './orders.service';
 import { OrdersController } from './orders.controller';
 import { NotificationsModule } from '../notifications/notifications.module';
@@ -21,6 +22,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
       Product,
       Address,
       Payment,
+      Customer,
     ]),
     NotificationsModule,
   ],

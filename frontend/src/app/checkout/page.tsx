@@ -8,10 +8,11 @@ import { useCartStore } from '../../store/cart.store';
 import { addressService } from '../../services/address.service';
 import { orderService } from '../../services/order.service';
 import { paymentService } from '../../services/payment.service';
+import { authService } from '../../services/auth.service';
 import { Address } from '../../types/user';
 import { Button } from '../../components/common/Button';
 import { Modal } from '../../components/common/Modal';
-import { ShieldCheck, Plus, CheckCircle2, Lock, Sparkles, MapPin, CreditCard, MessageCircle } from 'lucide-react';
+import { ShieldCheck, Plus, CheckCircle2, Lock, Sparkles, MapPin, CreditCard, MessageCircle, Phone } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 declare global {
@@ -22,7 +23,7 @@ declare global {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { customer, customerToken, isInitialized, initAuth } = useAuthStore();
+  const { customer, customerToken, isInitialized, initAuth, updateCustomerData } = useAuthStore();
   const { cart, fetchCart, clearCart } = useCartStore();
 
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -139,8 +140,26 @@ export default function CheckoutPage() {
       return;
     }
 
+    const selectedAddr = addresses.find((a) => a.id === selectedAddressId);
+    const contactPhone = selectedAddr?.phone || customer?.phone;
+
+    if (!contactPhone || contactPhone.replace(/\D/g, '').length < 10) {
+      setError('Please provide a valid 10-digit delivery contact phone number.');
+      return;
+    }
+
     setIsOrderProcessing(true);
     setError(null);
+
+    // If customer profile in DB is missing phone (e.g., Google Sign-In user), save it now
+    if (!customer?.phone && selectedAddr?.phone) {
+      try {
+        const res = await authService.updateCustomerProfile({ phone: selectedAddr.phone });
+        updateCustomerData(res.data);
+      } catch (custPhoneErr) {
+        console.warn('Could not auto-save customer phone to profile:', custPhoneErr);
+      }
+    }
 
     try {
       // 1. Create order on backend
@@ -167,7 +186,7 @@ export default function CheckoutPage() {
           handler: async function (response: any) {
             try {
               // 4. Verify payment signature on backend
-              await paymentService.verifyPayment({
+              const verifyRes = await paymentService.verifyPayment({
                 orderId: order.id,
                 razorpayPaymentId: response.razorpay_payment_id || `pay_${Date.now()}`,
                 razorpayOrderId: response.razorpay_order_id || rzpOrderData.razorpayOrderId,
@@ -179,6 +198,8 @@ export default function CheckoutPage() {
                 orderNumber: order.orderNumber,
                 totalAmount: order.totalAmount,
                 paymentId: response.razorpay_payment_id || `pay_${Date.now()}`,
+                customerPhone: (verifyRes as any)?.data?.customerPhone || selectedAddr?.phone || customer?.phone,
+                whatsappMessage: (verifyRes as any)?.data?.whatsappMessage,
               });
             } catch (verErr: any) {
               setError(verErr.message || 'Payment verification failed');
@@ -209,7 +230,7 @@ export default function CheckoutPage() {
         razorpayInstance.open();
       } else {
         // Direct Fallback if script blocked
-        await paymentService.verifyPayment({
+        const verifyRes = await paymentService.verifyPayment({
           orderId: order.id,
           razorpayPaymentId: `pay_test_${Date.now()}`,
           razorpayOrderId: rzpOrderData.razorpayOrderId,
@@ -221,6 +242,8 @@ export default function CheckoutPage() {
           orderNumber: order.orderNumber,
           totalAmount: order.totalAmount,
           paymentId: `pay_test_${Date.now()}`,
+          customerPhone: (verifyRes as any)?.data?.customerPhone || selectedAddr?.phone || customer?.phone,
+          whatsappMessage: (verifyRes as any)?.data?.whatsappMessage,
         });
       }
     } catch (err: any) {
@@ -263,24 +286,39 @@ export default function CheckoutPage() {
               <CheckCircle2 className="w-3.5 h-3.5" /> Razorpay Verified
             </span>
           </div>
-          <div className="pt-2 border-t border-cream-100 flex items-center gap-2 text-[11px] text-stone-500">
-            <MessageCircle className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
-            <span>Confirmation sent to your Email & WhatsApp!</span>
+          {orderSuccess.customerPhone && (
+            <div className="flex justify-between">
+              <span className="text-stone-500">Contact Number:</span>
+              <span className="font-bold text-yarn-mocha">{orderSuccess.customerPhone}</span>
+            </div>
+          )}
+          <div className="pt-2 border-t border-cream-100 flex items-start gap-2.5 text-[11px] bg-emerald-50/80 p-2.5 rounded-xl border border-emerald-200">
+            <MessageCircle className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold text-emerald-900">WhatsApp Confirmation Sent!</p>
+              <p className="text-[10px] text-emerald-700 mt-0.5">
+                Your order is confirmed. A receipt message has been dispatched to {orderSuccess.customerPhone ? <strong>{orderSuccess.customerPhone}</strong> : 'your WhatsApp number'}.
+              </p>
+            </div>
           </div>
         </div>
 
         {/* WhatsApp & Order Actions */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
           <a
-            href={`https://wa.me/?text=${encodeURIComponent(
-              `Hi CrochetLoom! I just confirmed my Order #${orderSuccess.orderNumber} (₹${orderSuccess.totalAmount}). Please keep me updated with tracking details! 🧶`,
-            )}`}
+            href={
+              orderSuccess.whatsappMessage
+                ? `https://wa.me/${(orderSuccess.customerPhone || '').replace(/\D/g, '')}?text=${encodeURIComponent(orderSuccess.whatsappMessage)}`
+                : `https://wa.me/?text=${encodeURIComponent(
+                    `Hi CrochetLoom! I just confirmed my Order #${orderSuccess.orderNumber} (₹${orderSuccess.totalAmount}). Please keep me updated with tracking details! 🧶`,
+                  )}`
+            }
             target="_blank"
             rel="noopener noreferrer"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-all active:scale-95"
           >
             <MessageCircle className="w-4 h-4 fill-white" />
-            Get Updates on WhatsApp
+            Open Confirmation in WhatsApp
           </a>
           <Link href="/orders" className="w-full sm:w-auto">
             <Button size="lg" className="w-full">Track My Order &rarr;</Button>
@@ -462,6 +500,19 @@ export default function CheckoutPage() {
                 </div>
               </div>
             )}
+
+            {/* Contact Phone & WhatsApp Status */}
+            <div className="p-3 bg-cream-50 border border-cream-200 rounded-2xl text-xs space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-stone-500 font-medium flex items-center gap-1.5">
+                  <Phone className="w-3.5 h-3.5 text-clay-600" /> WhatsApp & Contact:
+                </span>
+                <span className="font-bold text-yarn-mocha">
+                  {addresses.find((a) => a.id === selectedAddressId)?.phone || customer?.phone || 'Select delivery address'}
+                </span>
+              </div>
+              <p className="text-[10px] text-stone-400">Order confirmation & tracking messages will be sent to this number.</p>
+            </div>
 
             {/* Payment Button */}
             <Button

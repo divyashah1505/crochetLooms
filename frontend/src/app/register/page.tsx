@@ -27,12 +27,19 @@ function RegisterContent() {
     setIsLoading(true);
     setError(null);
 
+    const cleanPhone = phone.replace(/\D/g, '');
+    if (!phone.trim() || cleanPhone.length < 10) {
+      setError('Please enter a valid 10-digit mobile phone number (required for order updates).');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const result = await authService.registerCustomer({
         name,
         email,
         password,
-        phone: phone || undefined,
+        phone: phone.trim(),
       });
       setCustomerAuth(result.customer, result.accessToken);
       router.push(redirectUrl);
@@ -138,18 +145,20 @@ function RegisterContent() {
 
           <div>
             <label className="block text-xs font-bold text-yarn-mocha uppercase tracking-wider mb-1.5">
-              Phone Number (Optional)
+              Phone Number *
             </label>
             <div className="relative">
               <input
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="+91 9876543210"
+                placeholder="+91 9876543210 (10 digits)"
                 className="w-full pl-10 pr-4 py-2.5 text-sm bg-cream-50 border border-cream-300 rounded-xl focus:ring-2 focus:ring-clay-500 focus:outline-none"
+                required
               />
               <Phone className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
             </div>
+            <p className="text-[11px] text-stone-400 mt-1">Required for instant order confirmation and delivery notifications.</p>
           </div>
 
           <Button type="submit" size="lg" className="w-full font-bold" isLoading={isLoading}>

@@ -8,6 +8,7 @@ import { CartItem } from '../cart/entities/cart-item.entity';
 import { Product } from '../products/entities/product.entity';
 import { Address } from '../addresses/entities/address.entity';
 import { Payment } from '../payments/entities/payment.entity';
+import { Customer } from '../customers/entities/customer.entity';
 import { OrderStatus } from '../../common/enums/order-status.enum';
 import { PaymentStatus } from '../../common/enums/payment-status.enum';
 import { CreateOrderDto, UpdateOrderStatusDto } from './dto/create-order.dto';
@@ -31,6 +32,8 @@ export class OrdersService {
     private readonly addressRepository: Repository<Address>,
     @InjectRepository(Payment)
     private readonly paymentRepository: Repository<Payment>,
+    @InjectRepository(Customer)
+    private readonly customerRepository: Repository<Customer>,
     private readonly mailService: MailService,
     private readonly whatsappService: WhatsappService,
   ) {}
@@ -48,6 +51,19 @@ export class OrdersService {
     });
     if (!address) {
       throw new NotFoundException('Delivery address not found');
+    }
+
+    // Ensure customer profile in DB has contact phone number (e.g. from Google Sign-In)
+    if (address.phone) {
+      try {
+        const customer = await this.customerRepository.findOne({ where: { id: customerId } });
+        if (customer && !customer.phone) {
+          customer.phone = address.phone;
+          await this.customerRepository.save(customer);
+        }
+      } catch (custErr) {
+        console.warn('Could not auto-populate customer phone from address:', custErr);
+      }
     }
 
     // 2. Fetch cart with items and products

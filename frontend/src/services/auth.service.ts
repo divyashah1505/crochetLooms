@@ -26,6 +26,12 @@ export const authService = {
     return res.data as Customer;
   },
 
+  // Update Customer Profile
+  async updateCustomerProfile(payload: { name?: string; phone?: string; avatarUrl?: string }) {
+    const res = await apiClient.patch('/customer/auth/profile', payload);
+    return res.data as { message: string; data: Customer };
+  },
+
   // Admin Login
   async loginAdmin(payload: { email: string; password: string }) {
     const res = await apiClient.post('/admin/auth/login', payload);

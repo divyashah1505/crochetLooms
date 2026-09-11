@@ -20,6 +20,7 @@ interface AuthState {
 
   initAuth: () => Promise<void>;
   setCustomerAuth: (customer: Customer, token: string) => void;
+  updateCustomerData: (partial: Partial<Customer>) => void;
   setAdminAuth: (admin: Admin, token: string) => void;
   logoutCustomer: () => void;
   logoutAdmin: () => void;
@@ -104,6 +105,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         useCartStore.getState().addPendingItemIfAny();
       })
       .catch(() => {});
+  },
+
+  updateCustomerData: (partial) => {
+    const current = get().customer;
+    if (!current) return;
+    const updated = { ...current, ...partial };
+    localStorage.setItem('crochet_customer_data', JSON.stringify(updated));
+    set({ customer: updated });
   },
 
   setAdminAuth: (admin, token) => {

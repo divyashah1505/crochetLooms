@@ -173,8 +173,9 @@ export class PaymentsService {
     }
 
     // 4. Send Order Confirmation Email & WhatsApp to Customer & Admin
+    let fullOrder: Order | null = null;
     try {
-      const fullOrder = await this.orderRepository.findOne({
+      fullOrder = await this.orderRepository.findOne({
         where: { id: order.id },
         relations: ['customer', 'address', 'items', 'payment'],
       });
@@ -190,6 +191,9 @@ export class PaymentsService {
       console.error('Order notification trigger error:', err?.message || err);
     }
 
+    const customerPhone = fullOrder?.address?.phone || fullOrder?.customer?.phone || null;
+    const whatsappMessage = fullOrder ? this.whatsappService.generateCustomerMessage(fullOrder) : null;
+
     return {
       message: 'Payment verified and order confirmed successfully',
       data: {
@@ -198,6 +202,8 @@ export class PaymentsService {
         status: order.status,
         paymentStatus: payment.status,
         paymentId: payment.razorpayPaymentId,
+        customerPhone,
+        whatsappMessage,
       },
     };
   }

@@ -6,6 +6,7 @@ import { CustomersService } from '../customers/customers.service';
 import { RegisterCustomerDto } from './dto/register-customer.dto';
 import { LoginCustomerDto } from './dto/login-customer.dto';
 import { GoogleLoginDto } from './dto/google-login.dto';
+import { UpdateCustomerProfileDto } from './dto/update-customer-profile.dto';
 import { jwtConfig } from '../../config/jwt.config';
 
 @Injectable()
@@ -193,6 +194,31 @@ export class CustomerAuthService {
         avatarUrl: customer.avatarUrl,
         addresses: customer.addresses,
         createdAt: customer.createdAt,
+      },
+    };
+  }
+
+  async updateProfile(customerId: string, updateDto: UpdateCustomerProfileDto) {
+    const updateData: any = {};
+    if (updateDto.name !== undefined) {
+      updateData.name = updateDto.name.trim();
+    }
+    if (updateDto.phone !== undefined) {
+      updateData.phone = updateDto.phone.trim();
+    }
+    if (updateDto.avatarUrl !== undefined) {
+      updateData.avatarUrl = updateDto.avatarUrl;
+    }
+
+    const updated = await this.customersService.update(customerId, updateData);
+    return {
+      message: 'Profile updated successfully',
+      data: {
+        id: updated.id,
+        name: updated.name,
+        email: updated.email,
+        phone: updated.phone,
+        avatarUrl: updated.avatarUrl,
       },
     };
   }

@@ -13,7 +13,7 @@ export class RegisterCustomerDto {
   @MinLength(6, { message: 'Password must be at least 6 characters' })
   password: string;
 
-  @IsOptional()
-  @IsString()
-  phone?: string;
+  @IsString({ message: 'Phone number must be a valid string' })
+  @IsNotEmpty({ message: 'Phone number is required for order updates and delivery' })
+  phone: string;
 }
