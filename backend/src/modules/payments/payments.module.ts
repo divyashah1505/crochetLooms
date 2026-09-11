@@ -5,9 +5,13 @@ import { Order } from '../orders/entities/order.entity';
 import { Product } from '../products/entities/product.entity';
 import { PaymentsService } from './payments.service';
 import { PaymentsController } from './payments.controller';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Payment, Order, Product])],
+  imports: [
+    TypeOrmModule.forFeature([Payment, Order, Product]),
+    NotificationsModule,
+  ],
   controllers: [PaymentsController],
   providers: [PaymentsService],
   exports: [PaymentsService, TypeOrmModule],

@@ -11,7 +11,7 @@ import { paymentService } from '../../services/payment.service';
 import { Address } from '../../types/user';
 import { Button } from '../../components/common/Button';
 import { Modal } from '../../components/common/Modal';
-import { ShieldCheck, Plus, CheckCircle2, Lock, Sparkles, MapPin, CreditCard } from 'lucide-react';
+import { ShieldCheck, Plus, CheckCircle2, Lock, Sparkles, MapPin, CreditCard, MessageCircle } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 declare global {
@@ -248,10 +248,10 @@ export default function CheckoutPage() {
           </p>
         </div>
 
-        <div className="p-6 bg-white rounded-3xl border border-cream-200 shadow-sm max-w-sm mx-auto text-left text-xs space-y-2">
+        <div className="p-6 bg-white rounded-3xl border border-cream-200 shadow-sm max-w-sm mx-auto text-left text-xs space-y-3">
           <div className="flex justify-between">
             <span className="text-stone-500">Order Number:</span>
-            <span className="font-bold text-yarn-mocha">{orderSuccess.orderNumber}</span>
+            <span className="font-bold text-yarn-mocha">#{orderSuccess.orderNumber}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-stone-500">Total Paid:</span>
@@ -259,16 +259,34 @@ export default function CheckoutPage() {
           </div>
           <div className="flex justify-between">
             <span className="text-stone-500">Payment Status:</span>
-            <span className="font-bold text-sage-600">SUCCESS (Razorpay Verified)</span>
+            <span className="font-bold text-emerald-600 flex items-center gap-1">
+              <CheckCircle2 className="w-3.5 h-3.5" /> Razorpay Verified
+            </span>
+          </div>
+          <div className="pt-2 border-t border-cream-100 flex items-center gap-2 text-[11px] text-stone-500">
+            <MessageCircle className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+            <span>Confirmation sent to your Email & WhatsApp!</span>
           </div>
         </div>
 
-        <div className="flex items-center justify-center gap-4 pt-4">
-          <Link href="/orders">
-            <Button size="lg">Track My Order &rarr;</Button>
+        {/* WhatsApp & Order Actions */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(
+              `Hi CrochetLoom! I just confirmed my Order #${orderSuccess.orderNumber} (₹${orderSuccess.totalAmount}). Please keep me updated with tracking details! 🧶`,
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-all active:scale-95"
+          >
+            <MessageCircle className="w-4 h-4 fill-white" />
+            Get Updates on WhatsApp
+          </a>
+          <Link href="/orders" className="w-full sm:w-auto">
+            <Button size="lg" className="w-full">Track My Order &rarr;</Button>
           </Link>
-          <Link href="/products">
-            <Button variant="secondary" size="lg">Continue Shopping</Button>
+          <Link href="/products" className="w-full sm:w-auto">
+            <Button variant="secondary" size="lg" className="w-full">Continue Shopping</Button>
           </Link>
         </div>
       </div>

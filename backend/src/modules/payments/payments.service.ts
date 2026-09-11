@@ -14,6 +14,8 @@ import { PaymentStatus } from '../../common/enums/payment-status.enum';
 import { OrderStatus } from '../../common/enums/order-status.enum';
 import { razorpayConfig } from '../../config/razorpay.config';
 import { CreateRazorpayOrderDto, VerifyPaymentDto } from './dto/create-razorpay-order.dto';
+import { MailService } from '../notifications/mail.service';
+import { WhatsappService } from '../notifications/whatsapp.service';
 
 @Injectable()
 export class PaymentsService {
@@ -26,6 +28,8 @@ export class PaymentsService {
     private readonly orderRepository: Repository<Order>,
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
+    private readonly mailService: MailService,
+    private readonly whatsappService: WhatsappService,
   ) {
     if (razorpayConfig.keyId && razorpayConfig.keySecret && !razorpayConfig.keySecret.includes('_secret')) {
       try {
@@ -168,6 +172,24 @@ export class PaymentsService {
       }
     }
 
+    // 4. Send Order Confirmation Email & WhatsApp to Customer & Admin
+    try {
+      const fullOrder = await this.orderRepository.findOne({
+        where: { id: order.id },
+        relations: ['customer', 'address', 'items', 'payment'],
+      });
+      if (fullOrder) {
+        this.mailService.sendOrderConfirmationNotifications(fullOrder).catch((mailErr) => {
+          console.error('Failed to send order confirmation notifications:', mailErr?.message || mailErr);
+        });
+        this.whatsappService.sendOrderConfirmationWhatsApp(fullOrder).catch((waErr) => {
+          console.error('Failed to send order confirmation WhatsApp:', waErr?.message || waErr);
+        });
+      }
+    } catch (err: any) {
+      console.error('Order notification trigger error:', err?.message || err);
+    }
+
     return {
       message: 'Payment verified and order confirmed successfully',
       data: {
@@ -262,6 +284,24 @@ export class PaymentsService {
                 await this.productRepository.save(product);
               }
             }
+          }
+
+          // Send confirmation notifications to customer and admin
+          try {
+            const fullOrder = await this.orderRepository.findOne({
+              where: { id: order.id },
+              relations: ['customer', 'address', 'items', 'payment'],
+            });
+            if (fullOrder) {
+              this.mailService.sendOrderConfirmationNotifications(fullOrder).catch((err) => {
+                console.error('Failed to send webhook order confirmation email:', err?.message || err);
+              });
+              this.whatsappService.sendOrderConfirmationWhatsApp(fullOrder).catch((waErr) => {
+                console.error('Failed to send webhook order confirmation WhatsApp:', waErr?.message || waErr);
+              });
+            }
+          } catch (err: any) {
+            console.error('Webhook notification trigger error:', err?.message || err);
           }
         }
       }

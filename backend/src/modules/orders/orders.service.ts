@@ -11,6 +11,8 @@ import { Payment } from '../payments/entities/payment.entity';
 import { OrderStatus } from '../../common/enums/order-status.enum';
 import { PaymentStatus } from '../../common/enums/payment-status.enum';
 import { CreateOrderDto, UpdateOrderStatusDto } from './dto/create-order.dto';
+import { MailService } from '../notifications/mail.service';
+import { WhatsappService } from '../notifications/whatsapp.service';
 
 @Injectable()
 export class OrdersService {
@@ -29,6 +31,8 @@ export class OrdersService {
     private readonly addressRepository: Repository<Address>,
     @InjectRepository(Payment)
     private readonly paymentRepository: Repository<Payment>,
+    private readonly mailService: MailService,
+    private readonly whatsappService: WhatsappService,
   ) {}
 
   private generateOrderNumber(): string {
@@ -181,7 +185,30 @@ export class OrdersService {
 
   async updateStatus(id: string, dto: UpdateOrderStatusDto): Promise<Order> {
     const order = await this.findOneForAdmin(id);
+    const previousStatus = order.status;
     order.status = dto.status;
-    return this.orderRepository.save(order);
+    const updated = await this.orderRepository.save(order);
+
+    // If order was moved to CONFIRMED and wasn't already CONFIRMED, dispatch confirmation notifications
+    if (dto.status === OrderStatus.CONFIRMED && previousStatus !== OrderStatus.CONFIRMED) {
+      try {
+        const fullOrder = await this.orderRepository.findOne({
+          where: { id: updated.id },
+          relations: ['customer', 'address', 'items', 'payment'],
+        });
+        if (fullOrder) {
+          this.mailService.sendOrderConfirmationNotifications(fullOrder).catch((err) => {
+            console.error('Failed to send status confirmation emails:', err?.message || err);
+          });
+          this.whatsappService.sendOrderConfirmationWhatsApp(fullOrder).catch((err) => {
+            console.error('Failed to send status confirmation WhatsApp:', err?.message || err);
+          });
+        }
+      } catch (err: any) {
+        console.error('Order notification trigger error on status update:', err?.message || err);
+      }
+    }
+
+    return updated;
   }
 }

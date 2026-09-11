@@ -9,6 +9,7 @@ import { Address } from '../addresses/entities/address.entity';
 import { Payment } from '../payments/entities/payment.entity';
 import { OrdersService } from './orders.service';
 import { OrdersController } from './orders.controller';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { OrdersController } from './orders.controller';
       Address,
       Payment,
     ]),
+    NotificationsModule,
   ],
   controllers: [OrdersController],
   providers: [OrdersService],
