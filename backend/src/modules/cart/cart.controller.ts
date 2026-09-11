@@ -53,4 +53,9 @@ export class CartController {
   async clearCart(@CurrentCustomer() customer: Customer) {
     return this.cartService.clearCart(customer.id);
   }
+
+  @Delete()
+  async clearCartRoot(@CurrentCustomer() customer: Customer) {
+    return this.cartService.clearCart(customer.id);
+  }
 }

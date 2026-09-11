@@ -8,7 +8,7 @@ import { useAuthStore } from '../../store/auth.store';
 import { Button } from '../common/Button';
 
 export const CartDrawer: React.FC = () => {
-  const { cart, isDrawerOpen, closeDrawer, updateQuantity, removeItem, isLoading } = useCartStore();
+  const { cart, isDrawerOpen, closeDrawer, updateQuantity, removeItem, clearCart, isLoading } = useCartStore();
   const { customerToken, openAuthModal } = useAuthStore();
 
   if (!isDrawerOpen) return null;
@@ -38,12 +38,25 @@ export const CartDrawer: React.FC = () => {
                 Shopping Cart ({customerToken ? (cart?.totalItems || 0) : 0})
               </h2>
             </div>
-            <button
-              onClick={closeDrawer}
-              className="p-1.5 rounded-full text-stone-400 hover:text-stone-700 hover:bg-cream-100 transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2">
+              {customerToken && items.length > 0 && (
+                <button
+                  onClick={() => clearCart()}
+                  disabled={isLoading}
+                  className="text-xs font-semibold text-red-500 hover:text-red-700 hover:underline px-2 py-1 rounded transition-colors disabled:opacity-50"
+                  title="Clear all items from cart"
+                >
+                  Clear Cart
+                </button>
+              )}
+              <button
+                onClick={closeDrawer}
+                className="p-1.5 rounded-full text-stone-400 hover:text-stone-700 hover:bg-cream-100 transition-colors"
+                title="Close drawer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Free Shipping Progress */}
@@ -132,6 +145,7 @@ export const CartDrawer: React.FC = () => {
                         <button
                           onClick={() => removeItem(item.id)}
                           className="text-stone-400 hover:text-red-500 p-1 transition-colors"
+                          title="Remove product"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -141,11 +155,22 @@ export const CartDrawer: React.FC = () => {
                         {/* Quantity Controller */}
                         <div className="flex items-center border border-cream-300 rounded-lg bg-cream-50 overflow-hidden">
                           <button
-                            onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                            disabled={item.quantity <= 1 || isLoading}
-                            className="p-1 hover:bg-cream-200 text-stone-600 disabled:opacity-30"
+                            onClick={() => {
+                              if (item.quantity <= 1) {
+                                removeItem(item.id);
+                              } else {
+                                updateQuantity(item.id, item.quantity - 1);
+                              }
+                            }}
+                            disabled={isLoading}
+                            className="p-1 hover:bg-cream-200 text-stone-600 disabled:opacity-30 transition-colors"
+                            title={item.quantity <= 1 ? 'Remove from cart' : 'Decrease quantity'}
                           >
-                            <Minus className="w-3 h-3" />
+                            {item.quantity <= 1 ? (
+                              <Trash2 className="w-3 h-3 text-red-500" />
+                            ) : (
+                              <Minus className="w-3 h-3" />
+                            )}
                           </button>
                           <span className="px-2 text-xs font-semibold text-yarn-mocha">
                             {item.quantity}
@@ -154,6 +179,7 @@ export const CartDrawer: React.FC = () => {
                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
                             disabled={isLoading || item.quantity >= item.product.stock}
                             className="p-1 hover:bg-cream-200 text-stone-600 disabled:opacity-30"
+                            title="Increase quantity"
                           >
                             <Plus className="w-3 h-3" />
                           </button>

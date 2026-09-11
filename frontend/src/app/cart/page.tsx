@@ -132,11 +132,22 @@ export default function CartPage() {
                   <div className="flex items-center justify-between pt-2 border-t border-cream-100">
                     <div className="flex items-center border border-cream-300 rounded-xl bg-cream-50 overflow-hidden">
                       <button
-                        onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                        disabled={item.quantity <= 1 || isLoading}
-                        className="p-2 hover:bg-cream-200 text-stone-600 disabled:opacity-30"
+                        onClick={() => {
+                          if (item.quantity <= 1) {
+                            removeItem(item.id);
+                          } else {
+                            updateQuantity(item.id, item.quantity - 1);
+                          }
+                        }}
+                        disabled={isLoading}
+                        className="p-2 hover:bg-cream-200 text-stone-600 disabled:opacity-30 transition-colors"
+                        title={item.quantity <= 1 ? 'Remove from cart' : 'Decrease quantity'}
                       >
-                        <Minus className="w-3.5 h-3.5" />
+                        {item.quantity <= 1 ? (
+                          <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                        ) : (
+                          <Minus className="w-3.5 h-3.5" />
+                        )}
                       </button>
                       <span className="px-3 text-xs font-bold text-yarn-mocha">
                         {item.quantity}

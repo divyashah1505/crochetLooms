@@ -139,20 +139,30 @@ export class CartService {
   async removeItem(customerId: string, itemId: string) {
     const cart = await this.getOrCreateCart(customerId);
     const item = await this.cartItemRepository.findOne({
-      where: { id: itemId, cartId: cart.id },
+      where: [
+        { id: itemId, cartId: cart.id },
+        { productId: itemId, cartId: cart.id },
+      ],
     });
 
-    if (!item) {
-      throw new NotFoundException('Cart item not found');
+    if (item) {
+      await this.cartItemRepository.delete({ id: item.id });
     }
 
-    await this.cartItemRepository.remove(item);
     return this.getCartSummary(customerId);
   }
 
   async clearCart(customerId: string) {
     const cart = await this.getOrCreateCart(customerId);
     await this.cartItemRepository.delete({ cartId: cart.id });
-    return this.getCartSummary(customerId);
+    return {
+      id: cart.id,
+      customerId: cart.customerId,
+      items: [],
+      totalItems: 0,
+      subtotal: 0,
+      shippingFee: 0,
+      totalAmount: 0,
+    };
   }
 }

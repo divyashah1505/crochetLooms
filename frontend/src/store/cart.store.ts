@@ -77,6 +77,9 @@ export const useCartStore = create<CartState>((set, get) => ({
   },
 
   updateQuantity: async (itemId: string, quantity: number) => {
+    if (quantity <= 0) {
+      return get().removeItem(itemId);
+    }
     set({ isLoading: true, error: null });
     try {
       const cart = await cartService.updateItemQuantity(itemId, quantity);
@@ -93,8 +96,13 @@ export const useCartStore = create<CartState>((set, get) => ({
       const cart = await cartService.removeItem(itemId);
       set({ cart, isLoading: false });
     } catch (err: any) {
-      set({ error: err.message, isLoading: false });
-      throw err;
+      try {
+        const cart = await cartService.getCart();
+        set({ cart, isLoading: false });
+      } catch {
+        set({ error: err.message, isLoading: false });
+        throw err;
+      }
     }
   },
 
@@ -104,8 +112,23 @@ export const useCartStore = create<CartState>((set, get) => ({
       const cart = await cartService.clearCart();
       set({ cart, isLoading: false });
     } catch (err: any) {
-      set({ error: err.message, isLoading: false });
-      throw err;
+      try {
+        const cart = await cartService.getCart();
+        set({ cart, isLoading: false });
+      } catch {
+        set({
+          cart: {
+            id: get().cart?.id || '',
+            customerId: get().cart?.customerId || '',
+            items: [],
+            totalItems: 0,
+            subtotal: 0,
+            shippingFee: 0,
+            totalAmount: 0,
+          },
+          isLoading: false,
+        });
+      }
     }
   },
 }));
